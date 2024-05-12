@@ -68,7 +68,7 @@ def get_recommendations(user_genres):
         gen_md = movies.join(s.set_index('index'), rsuffix='_exploded')
 
         # Return top 10 recommended movies based on the specified genres
-        recommended_movies = gen_md[gen_md['genre'].isin(user_genres)].head(10)
+        recommended_movies = gen_md[gen_md['genre'].isin(user_genres)].head(20)
         r = clean_dataframe(recommended_movies)
         return r.to_dict(orient='records')
     except Exception as e:

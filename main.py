@@ -3,15 +3,21 @@ from pydantic import BaseModel
 from typing import List
 from ml_model import recommend_movies
 from simple_model import get_recommendations
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 from dotenv import load_dotenv
 load_dotenv()  
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 # Pydantic models for request data validation
 class RecommendationRequest(BaseModel):
-    movie_id: int
-    user_id: int
+    movie_ids: List[int]
 
 class GenreRecommendationRequest(BaseModel):
     genres: List[str]
@@ -21,16 +27,13 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post('/recommend')
+@app.post('/recommend_by_bookmark')
 async def recommend(data: RecommendationRequest):
     try:
         # Get movie recommendations
-        recommended_movies = recommend_movies(data.movie_id)
-        return {
-            "user_id": data.user_id,
-            "movie_id": data.movie_id,
-            "recommended_movies": recommended_movies
-        }
+        recommended_movies = recommend_movies(data.movie_ids)
+        return recommended_movies
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 

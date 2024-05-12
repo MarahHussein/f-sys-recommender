@@ -41,22 +41,28 @@ movie_similarity = cosine_similarity(feature_matrix)
 # Convert to DataFrame for easier manipulation
 movie_similarity_df = pd.DataFrame(movie_similarity, index=movies['id'].astype(str), columns=movies['id'].astype(str))
 
-def recommend_movies(movie_id, num_recommendations=10):
-    # Convert movie_id to string if it's numeric
-    movie_id = str(movie_id)
-    if movie_id not in movie_similarity_df.index:
-        return "Movie ID not found."
-    
-    # Get movies sorted by similarity scores
-    similar_movies = movie_similarity_df.loc[movie_id].sort_values(ascending=False)
+
+def recommend_movies(movie_ids, num_recommendations=3):
+    notFind = []
+    recommendations = []
+    for movie_id in movie_ids:
+        movie_id = str(movie_id)
+        if movie_id not in movie_similarity_df.index:
+            notFind.append(movie_id)
+            continue
+
+        if movie_id in movie_similarity_df.index:
+            # Get movies sorted by similarity scores
+            similar_movies = movie_similarity_df.loc[movie_id].sort_values(ascending=False)
     
     # Exclude the movie itself and get the top N recommendations
-    top_recommendations = similar_movies.iloc[1:num_recommendations+1]
+            top_recommendations = similar_movies.iloc[1:num_recommendations+1]
 
     # Map indices to movie titles
-    recommended_movie_ids = top_recommendations.index
-    recommended_movies = movies[movies['id'].astype(str).isin(recommended_movie_ids)]
-    r = clean_dataframe(recommended_movies)
-    recommended_movies_list = r.to_dict(orient='records')
+            recommended_movie_ids = top_recommendations.index
+            recommended_movies = movies[movies['id'].astype(str).isin(recommended_movie_ids)]
+            r = clean_dataframe(recommended_movies)
+            recommended_movies_list = r.to_dict(orient='records')
+            recommendations.extend(recommended_movies_list)
 
-    return recommended_movies_list
+    return {"not_found": notFind, "recommended": recommendations}
