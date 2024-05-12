@@ -27,7 +27,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post('/recommend_by_bookmark')
+@app.post("/recommend_by_bookmark")
 async def recommend(data: RecommendationRequest):
     try:
         # Get movie recommendations
@@ -38,7 +38,7 @@ async def recommend(data: RecommendationRequest):
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
-@app.post('/recommend_by_genre')
+@app.post("/recommend_by_genre")
 async def recommend_genres(data: GenreRecommendationRequest):
     try:
         # Get genre recommendations
@@ -50,7 +50,7 @@ async def recommend_genres(data: GenreRecommendationRequest):
 
 # Run the application using Uvicorn (or another ASGI server)
 import os
-if __name__ == '__main__':
+if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))  # Default to 8000 if not specified
-    uvicorn.run(app, host='0.0.0.0', port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)
