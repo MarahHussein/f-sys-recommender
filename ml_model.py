@@ -5,6 +5,11 @@ from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 load_dotenv()  # This loads environment variables from .env file
+import numpy as np
+
+def clean_dataframe(df):
+    """Replace all 'inf', '-inf', and 'nan' with None (which becomes 'null' in JSON)."""
+    return df.replace([np.inf, -np.inf, np.nan], None)
 
 # Establish connection to MongoDB
 mongo_uri = os.getenv("MONGO_URI")
@@ -47,9 +52,11 @@ def recommend_movies(movie_id, num_recommendations=10):
     
     # Exclude the movie itself and get the top N recommendations
     top_recommendations = similar_movies.iloc[1:num_recommendations+1]
-    
+
     # Map indices to movie titles
     recommended_movie_ids = top_recommendations.index
     recommended_movies = movies[movies['id'].astype(str).isin(recommended_movie_ids)]
-    
-    return recommended_movies
+    r = clean_dataframe(recommended_movies)
+    recommended_movies_list = r.to_dict(orient='records')
+
+    return recommended_movies_list
