@@ -1,9 +1,13 @@
+import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 import os
 from dotenv import load_dotenv
 load_dotenv()  # This loads environment variables from .env file
 
+def clean_dataframe(df):
+    """Replace all 'inf', '-inf', and 'nan' with None (which becomes 'null' in JSON)."""
+    return df.replace([np.inf, -np.inf, np.nan], None)
 # Function for weighted rating calculation
 def weighted_rating(x, m, c):
     v = x['vote_count']
@@ -65,7 +69,8 @@ def get_recommendations(user_genres):
 
         # Return top 10 recommended movies based on the specified genres
         recommended_movies = gen_md[gen_md['genre'].isin(user_genres)].head(10)
-        return recommended_movies.to_dict(orient='records')
+        r = clean_dataframe(recommended_movies)
+        return r.to_dict(orient='records')
     except Exception as e:
         print(f'Error in get_recommendations: {e}')
         return []
